@@ -6,12 +6,14 @@ import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.GridView;
@@ -22,9 +24,29 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements AbsListView.OnScrollListener {
 
     List<Image> allImages;
+    GridView gridView;
+    int scrollState;
+    ImageAdapter imgAdapter;
+    ImageFragment imageFragment;
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+        //todo CALL ASYNC
+        this.scrollState = scrollState;
+        if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
+            imgAdapter.notifyDataSetChanged();
+
+
+
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+    }
 
 
     /**
@@ -34,13 +56,15 @@ public class MainActivity extends Activity {
 
 
         List<Image> imageList;
+        ImageFragment adImageFragment;
 
         public class ImageHolder{
             ImageView catIV;
         }
 
-        public ImageAdapter(List<Image> imageList){
+        public ImageAdapter(List<Image> imageList, ImageFragment imageFragment){
             this.imageList = imageList;
+            this.adImageFragment = imageFragment;
         }
 
         @Override
@@ -60,28 +84,42 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
 
             ImageHolder imageHolder;
 
-            if(convertView == null){
 
-                imageHolder = new ImageHolder();
+                if(convertView == null){
 
-                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.thumbnail_img_layout, parent, false);
+                    imageHolder = new ImageHolder();
 
-                imageHolder.catIV = (ImageView) convertView.findViewById(R.id.thumbnail_image);
+                    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    convertView = inflater.inflate(R.layout.thumbnail_img_layout, parent, false);
 
-                convertView.setTag(imageHolder);
+                    imageHolder.catIV = (ImageView) convertView.findViewById(R.id.thumbnail_image);
+
+                    convertView.setTag(imageHolder);
 
 
+                }
+                else {
+                    imageHolder = (ImageHolder) convertView.getTag();
+                }
+
+            if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
+            {
+                imageHolder.catIV.setImageBitmap(allImages.get(position).getBitmapImage());
+                imageHolder.catIV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Log.i("ImageFragment","NO:"+adImageFragment.catImage);
+                        adImageFragment.setCatBitmap(allImages.get(position).getBitmapImage());
+                        getFragmentManager().beginTransaction().replace(R.id.fragment_container, adImageFragment, null).addToBackStack(null).commit();
+
+                    }
+                });
             }
-            else {
-                imageHolder = (ImageHolder) convertView.getTag();
-            }
-
-            imageHolder.catIV.setImageURI(Uri.fromFile(new File(allImages.get(position).getUrl())));
 
 
             return convertView;
@@ -97,19 +135,23 @@ public class MainActivity extends Activity {
 
         //List here
         allImages = new ArrayList<Image>();
+        imageFragment = new ImageFragment();
 
-        for(int i=0;i<10;i++)
+        for(int i=0;i<100;i++)
         {
 
             allImages.add(new Image(
-                "http://i.huffpost.com/gen/964776/thumbs/s-CATS-KILL-BILLIONS-large.jpg?10",
+                "http://jasonlefkowitz.net/wp-content/uploads/2013/07/Cute-Cats-cats-33440930-1280-800.jpg",
                     String.valueOf(i),
-                "http://i.huffpost.com/gen/964776/thumbs/s-CATS-KILL-BILLIONS-large.jpg?10"));
+                "http://i.huffpost.com/gen/964776/thumbs/s-CATS-KILL-BILLIONS-large.jpg"));
         }
 
         //ImageAdapter imageAdapter = new ImageAdapter(allImages);
-        GridView gridView = (GridView) findViewById(R.id.cat_gv_cats);
-        gridView.setAdapter(new ImageAdapter(allImages));
+        gridView = (GridView) findViewById(R.id.cat_gv_cats);
+        imgAdapter = new ImageAdapter(allImages,imageFragment);
+        gridView.setAdapter(imgAdapter);
+        gridView.setOnScrollListener(this);
+
 
 
 
