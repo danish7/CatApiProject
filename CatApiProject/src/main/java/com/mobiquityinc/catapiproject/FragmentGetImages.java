@@ -59,6 +59,7 @@ public class FragmentGetImages extends Fragment {
         } else {
             // display error
         }
+        setRetainInstance(true);
     }
 
     private static class GetMoreCats extends AsyncTask<Void,Void,List<Image>>{
