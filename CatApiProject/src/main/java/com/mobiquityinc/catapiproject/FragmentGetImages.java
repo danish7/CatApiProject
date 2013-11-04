@@ -13,6 +13,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,6 +34,8 @@ public class FragmentGetImages extends Fragment {
 
     private final static String IMAGE_COUNT  = "imageCount";
     private final static String DEBUG_TAG = "debug_tag";
+
+    public List<Image> listImages;
 
     public static FragmentGetImages newInstance(int imageCount){
 
@@ -58,7 +61,7 @@ public class FragmentGetImages extends Fragment {
         }
     }
 
-    private static class GetMoreCats extends AsyncTask<Void,Void,Void>{
+    private static class GetMoreCats extends AsyncTask<Void,Void,List<Image>>{
 
         @Override
         protected void onPreExecute() {
@@ -66,7 +69,8 @@ public class FragmentGetImages extends Fragment {
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected List<Image> doInBackground(Void... voids)
+        {
 
             List<Image> imageList = new ArrayList<Image>();
 
@@ -91,42 +95,20 @@ public class FragmentGetImages extends Fragment {
                 Log.d(DEBUG_TAG, "The response is: " + response);
                 is = conn.getInputStream();
 
+                BufferedReader bufferedReader = null;
+                StringBuilder sb = new StringBuilder();
+                String line;
 
-
-              //  if(response== )
-
-                // parse the result
-                // create an imageObject
-                // add it to the list
-
-                XmlPullParserFactory factory = null;
-                try {
-                    factory = XmlPullParserFactory.newInstance();
-                } catch (XmlPullParserException e1) {
-                    e1.printStackTrace();
+                bufferedReader = new BufferedReader(new InputStreamReader(is));
+                while ((line = bufferedReader.readLine()) !=null){
+                    sb.append(line);
                 }
-                factory.setNamespaceAware(true);
-                XmlPullParser xpp = factory.newPullParser();
 
-                xpp.setInput( new StringReader( "<foo>Hello World!</foo>" ) );
-                int eventType = xpp.getEventType();
-                while (eventType != XmlPullParser.END_DOCUMENT) {
-                    if(eventType == XmlPullParser.START_DOCUMENT) {
-                        System.out.println("Start document");
-                    } else if(eventType == XmlPullParser.START_TAG) {
-                        System.out.println("Start tag "+xpp.getName());
-                    } else if(eventType == XmlPullParser.END_TAG) {
-                        System.out.println("End tag "+xpp.getName());
-                    } else if(eventType == XmlPullParser.TEXT) {
-                        System.out.println("Text "+xpp.getText());
-                    }
-                    eventType = xpp.next();
-                }
-                System.out.println("End document");
-            }
+                imageList = (List<Image>) new SimpleXmlPullApp().main(sb.toString());
 
 
-                return contentAsString;
+
+                return imageList;
 
                 // Makes sure that the InputStream is closed after the app is
                 // finished using it.
@@ -135,6 +117,8 @@ public class FragmentGetImages extends Fragment {
             } catch (ProtocolException e) {
                 e.printStackTrace();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (XmlPullParserException e) {
                 e.printStackTrace();
             } finally {
                 if (is != null) {
@@ -154,12 +138,11 @@ public class FragmentGetImages extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-
-            //if(result)
-
-
+        protected void onPostExecute(List<Image> list)
+        {
+            super.onPostExecute(list);
+            MainActivity.listofCats = list;
+            MainActivity.printList();
         }
 
         public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {

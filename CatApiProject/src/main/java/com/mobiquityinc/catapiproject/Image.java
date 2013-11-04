@@ -3,7 +3,8 @@ package com.mobiquityinc.catapiproject;
 /**
  * Created by ashajgotra on 11/4/13.
  */
-public class Image  {
+public class Image
+{
 
     String url;
     String imageId;
