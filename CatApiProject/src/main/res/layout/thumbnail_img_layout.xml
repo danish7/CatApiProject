@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_layout"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:visibility="gone">
+    android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/cat_image_view"
+        android:id="@+id/thumbnail_image"
         android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:padding="48dp"/>
+        android:layout_width="match_parent" />
 
 </LinearLayout>
