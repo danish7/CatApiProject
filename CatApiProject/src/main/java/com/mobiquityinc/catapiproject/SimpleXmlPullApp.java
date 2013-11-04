@@ -1,5 +1,7 @@
 package com.mobiquityinc.catapiproject;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Debug;
 import android.util.Log;
 
@@ -7,8 +9,12 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +83,7 @@ public class SimpleXmlPullApp
             }
             eventType = xpp.next();
         }
+
         return imageList;
     }
 }

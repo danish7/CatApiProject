@@ -109,7 +109,8 @@ public class FragmentGetImages extends Fragment {
 
 
 
-                return imageList;
+
+
 
                 // Makes sure that the InputStream is closed after the app is
                 // finished using it.
@@ -130,12 +131,8 @@ public class FragmentGetImages extends Fragment {
                     }
                 }
             }
+            return imageList;
 
-            // do the parsing
-
-
-
-            return null;
         }
 
         @Override

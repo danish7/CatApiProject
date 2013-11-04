@@ -1,5 +1,7 @@
 package com.mobiquityinc.catapiproject;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by ashajgotra on 11/4/13.
  */
