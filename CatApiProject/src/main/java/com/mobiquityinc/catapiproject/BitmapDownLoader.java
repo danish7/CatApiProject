@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -56,12 +57,14 @@ public class BitmapDownLoader extends AsyncTask<String, Void, Bitmap>
     {
         if (imageViewReference != null && bitmap != null)
         {
-            Log.v("DANISH","image reference and bitmap are not null" );
+            //Log.v("DANISH","image reference and bitmap are not null" );
             final ImageView imageView = imageViewReference.get();
             if (imageView != null)
             {
-                Log.v("DANISH","imageview  not null" );
+                //Log.v("DANISH","imageview  not null" );
+
                 imageView.setImageBitmap(bitmap);
+                imageView.setVisibility(View.VISIBLE);
             }
         }
     }

@@ -63,11 +63,11 @@ public class SimpleXmlPullApp
                 if(tagname.equalsIgnoreCase("image")){
                     Image image = new Image(url,id,source);
                     imageList.add(image);
-                    Log.i("debug","created: "+image.imageId);
+                    //Log.i("debug","created: "+image.imageId);
                 }
 
             } else if(eventType == XmlPullParser.TEXT) {
-                System.out.println("Text "+xpp.getText());
+                //System.out.println("Text "+xpp.getText());
 
                 if(isUrl){
                     url = xpp.getText();

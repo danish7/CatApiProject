@@ -1,5 +1,6 @@
 package com.mobiquityinc.catapiproject;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -36,6 +37,7 @@ public class FragmentGetImages extends Fragment {
     private final static String DEBUG_TAG = "debug_tag";
 
     public List<Image> listImages;
+    public static OnListReady listReadyListener;
 
     public static FragmentGetImages newInstance(int imageCount){
 
@@ -45,6 +47,16 @@ public class FragmentGetImages extends Fragment {
         f.setArguments(bdl);
 
         return f;
+    }
+
+    public interface OnListReady{
+        public void printList(List<Image> list);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        listReadyListener = (OnListReady) activity;
     }
 
     @Override
@@ -81,7 +93,7 @@ public class FragmentGetImages extends Fragment {
             // Only display the first 500 characters of the retrieved
             // web page content.
 
-            String myurl = "http://thecatapi.com/api/images/get?format=xml&results_per_page=20";
+            String myurl = "http://thecatapi.com/api/images/get?format=xml&results_per_page=50";
 
             try {
                 URL url = new URL(myurl);
@@ -93,7 +105,7 @@ public class FragmentGetImages extends Fragment {
                 // Starts the query
                 conn.connect();
                 int response = conn.getResponseCode();
-                Log.d(DEBUG_TAG, "The response is: " + response);
+                //Log.d(DEBUG_TAG, "The response is: " + response);
                 is = conn.getInputStream();
 
                 BufferedReader bufferedReader = null;
@@ -139,17 +151,13 @@ public class FragmentGetImages extends Fragment {
         protected void onPostExecute(List<Image> list)
         {
             super.onPostExecute(list);
-            MainActivity.listofCats = list;
-            MainActivity.printList();
+            MainActivity.allImages = list;
+            //MainActivity.printList();
+            listReadyListener.printList(list);
+
         }
 
-        public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-            Reader reader = null;
-            reader = new InputStreamReader(stream, "UTF-8");
-            char[] buffer = new char[len];
-            reader.read(buffer);
-            return new String(buffer);
-        }
+
     }
 
 
