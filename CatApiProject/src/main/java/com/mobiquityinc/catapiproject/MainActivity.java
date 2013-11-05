@@ -37,7 +37,12 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
+        imgAdapter.setScrollState(scrollState);
 
+        if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE){
+            // This is not ideal, as whenever it stops scrolling, ALL images reload.
+            imgAdapter.notifyDataSetChanged();
+        }
 
     }
 

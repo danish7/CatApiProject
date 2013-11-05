@@ -3,6 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/full_kitty"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:padding="48dp"
+        android:visibility="gone"/>
+
 
     <FrameLayout
         android:id="@+id/fragment_container"
@@ -14,10 +21,9 @@
         android:id="@+id/cat_gv_cats"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:columnWidth="150dp"
         android:numColumns="auto_fit"
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="10dp"
+        android:verticalSpacing="2dp"
+        android:horizontalSpacing="2dp"
         android:stretchMode="columnWidth"
         android:gravity="center"
         />

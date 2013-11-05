@@ -17,8 +17,10 @@ public class ImageAdapter extends BaseAdapter {
 
 
     private List<Image> imageList;
+    //private ImageFragment adImageFragment;
     private int scrollState;
     private Context context;
+    private Boolean[] reupdate;
     public BitmapDownLoader download;
 
 
@@ -54,6 +56,7 @@ public class ImageAdapter extends BaseAdapter {
         scrollState = x;
     }
 
+
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
 
@@ -77,12 +80,14 @@ public class ImageAdapter extends BaseAdapter {
         else {
             imageHolder = (ImageHolder) convertView.getTag();
             imageHolder.catIV.setVisibility(View.INVISIBLE);
-
-
         }
 
-        download = new BitmapDownLoader(imageHolder.catIV);
-        download.execute(imageList.get(position).getUrl());
+
+        if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE){
+            download = new BitmapDownLoader(imageHolder.catIV);
+            download.execute(imageList.get(position).getUrl());
+        }
+
 
 
 
