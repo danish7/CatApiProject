@@ -72,6 +72,7 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
                 if(allImages.isEmpty()){
                     loadMoreCats();
                 }else{
+                    isShowingFullScreen=false;
                     gridView.setVisibility(View.VISIBLE);
                 }
             }else {
