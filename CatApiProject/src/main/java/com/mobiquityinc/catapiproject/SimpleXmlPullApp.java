@@ -23,7 +23,6 @@ import java.util.List;
  */
 public class SimpleXmlPullApp
 {
-
     public static List<Image> main (String listString) throws XmlPullParserException, IOException
     {
         String url = null;
@@ -63,7 +62,6 @@ public class SimpleXmlPullApp
                 if(tagname.equalsIgnoreCase("image")){
                     Image image = new Image(url,id,source);
                     imageList.add(image);
-                    Log.i("debug","created: "+image.imageId);
                 }
 
             } else if(eventType == XmlPullParser.TEXT) {
@@ -83,7 +81,6 @@ public class SimpleXmlPullApp
             }
             eventType = xpp.next();
         }
-
         return imageList;
     }
 }

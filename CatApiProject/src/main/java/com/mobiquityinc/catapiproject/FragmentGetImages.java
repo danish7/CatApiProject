@@ -1,5 +1,6 @@
 package com.mobiquityinc.catapiproject;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -34,8 +35,7 @@ public class FragmentGetImages extends Fragment {
 
     private final static String IMAGE_COUNT  = "imageCount";
     private final static String DEBUG_TAG = "debug_tag";
-
-    public List<Image> listImages;
+    public static OnListCreatedListener myListCreatedListener;
 
     public static FragmentGetImages newInstance(int imageCount){
 
@@ -47,6 +47,16 @@ public class FragmentGetImages extends Fragment {
         return f;
     }
 
+    public interface OnListCreatedListener {
+        public void onListCreated(List<Image> list);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        myListCreatedListener = (OnListCreatedListener) activity;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +64,7 @@ public class FragmentGetImages extends Fragment {
         ConnectivityManager connMgr = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
+            Log.i("PRA","executing GetMoreCats");
             GetMoreCats getMoreCats = new GetMoreCats();
             getMoreCats.execute();
         } else {
@@ -107,11 +118,6 @@ public class FragmentGetImages extends Fragment {
 
                 imageList = (List<Image>) new SimpleXmlPullApp().main(sb.toString());
 
-
-
-
-
-
                 // Makes sure that the InputStream is closed after the app is
                 // finished using it.
             } catch (MalformedURLException e) {
@@ -132,27 +138,13 @@ public class FragmentGetImages extends Fragment {
                 }
             }
             return imageList;
-
         }
 
         @Override
         protected void onPostExecute(List<Image> list)
         {
             super.onPostExecute(list);
-            MainActivity.listofCats = list;
-            MainActivity.printList();
-        }
-
-        public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-            Reader reader = null;
-            reader = new InputStreamReader(stream, "UTF-8");
-            char[] buffer = new char[len];
-            reader.read(buffer);
-            return new String(buffer);
+            myListCreatedListener.onListCreated(list);
         }
     }
-
-
-
-
 }

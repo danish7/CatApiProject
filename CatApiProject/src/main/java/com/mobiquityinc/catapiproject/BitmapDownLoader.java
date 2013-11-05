@@ -38,7 +38,9 @@ public class BitmapDownLoader extends AsyncTask<String, Void, Bitmap>
         Bitmap bMap=null;
         try {
             URL url = new URL(params[0]);
-           bMap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+
+            // STILL GETTING AN:   Caused by: java.lang.OutOfMemoryError
+            bMap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -56,11 +58,9 @@ public class BitmapDownLoader extends AsyncTask<String, Void, Bitmap>
     {
         if (imageViewReference != null && bitmap != null)
         {
-            Log.v("DANISH","image reference and bitmap are not null" );
             final ImageView imageView = imageViewReference.get();
             if (imageView != null)
             {
-                Log.v("DANISH","imageview  not null" );
                 imageView.setImageBitmap(bitmap);
             }
         }

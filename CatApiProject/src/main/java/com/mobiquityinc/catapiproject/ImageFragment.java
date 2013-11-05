@@ -17,10 +17,19 @@ import android.widget.LinearLayout;
  */
 public class ImageFragment extends Fragment {
 
+    private final static String IMAGE_URL  = "image_url";
     ImageView catImage;
     Bitmap catBitmap;
-    LinearLayout layout;
 
+    public static ImageFragment newInstance(String url){
+
+        ImageFragment f = new ImageFragment();
+        Bundle bdl = new Bundle();
+        bdl.putString(IMAGE_URL,url);
+        f.setArguments(bdl);
+
+        return f;
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -28,35 +37,20 @@ public class ImageFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        //catImage.setBackgroundColor(Color.RED);
-        layout.setVisibility(View.VISIBLE);
-        catImage.setImageBitmap(catBitmap);
-
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.cat_fullscreen_image, container, false);
         catImage = (ImageView) view.findViewById(R.id.cat_image_view);
-        layout = (LinearLayout) view;
-        Log.i("ImageFragment","YO:"+catImage);
 
         return view;
     }
 
-    public void setCatBitmap(Bitmap bitmap){
-        //catBitmap = bitmap;
-        Log.i("ImageFragment",""+catImage);
-        catBitmap = bitmap;
-        //catImage.setImageResource(R.drawable.ic_launcher);
-        //catImage.setBackgroundColor(Color.RED);
-        //layout.setVisibility(View.VISIBLE);
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        BitmapDownLoader download = new BitmapDownLoader(catImage);
+        download.execute(getArguments().getString(IMAGE_URL));
 
     }
-
 }

@@ -3,116 +3,39 @@ package com.mobiquityinc.catapiproject;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class MainActivity extends Activity implements AbsListView.OnScrollListener {
+public class MainActivity extends Activity implements AbsListView.OnScrollListener, FragmentGetImages.OnListCreatedListener {
 
+    private static String FULL_SCREEN = "full_screen";
     List<Image> allImages;
+    RelativeLayout fragment_container;
+    TextView loadingText;
     GridView gridView;
     int scrollState;
     ImageAdapter imgAdapter;
     ImageFragment imageFragment;
-
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        //todo CALL ASYNC
-        this.scrollState = scrollState;
-        if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
-            imgAdapter.notifyDataSetChanged();
-
-
-
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-    }
-
-
-    /**
-     * Image
-     */
-    public class ImageAdapter extends BaseAdapter{
-
-
-        List<Image> imageList;
-        ImageFragment adImageFragment;
-
-        public class ImageHolder{
-            ImageView catIV;
-        }
-
-        public ImageAdapter(List<Image> imageList, ImageFragment imageFragment){
-            this.imageList = imageList;
-            this.adImageFragment = imageFragment;
-        }
-
-        @Override
-        public int getCount() {
-            return imageList.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return imageList.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-
-            return Long.parseLong(imageList.get(position).getImageId());
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-
-            ImageHolder imageHolder;
-
-
-                if(convertView == null){
-
-                    imageHolder = new ImageHolder();
-
-                    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    convertView = inflater.inflate(R.layout.thumbnail_img_layout, parent, false);
-
-                    imageHolder.catIV = (ImageView) convertView.findViewById(R.id.thumbnail_image);
-
-                    convertView.setTag(imageHolder);
-
-
-                }
-                else {
-                    imageHolder = (ImageHolder) convertView.getTag();
-                }
-
-            if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
-            {
-                imageHolder.catIV.setImageBitmap(allImages.get(position).getBitmapImage());
-                imageHolder.catIV.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        Log.i("ImageFragment","NO:"+adImageFragment.catImage);
-                        adImageFragment.setCatBitmap(allImages.get(position).getBitmapImage());
-                        getFragmentManager().beginTransaction().replace(R.id.fragment_container, adImageFragment, null).addToBackStack(null).commit();
-
-                    }
-                });
-            }
-
-
-            return convertView;
-        }
-    }
+    boolean isShowingFullScreen=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -120,38 +43,90 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //TODO  Call async fragment into allImages
+        gridView = (GridView) findViewById(R.id.cat_gv_cats);
+        fragment_container = (RelativeLayout)findViewById(R.id.fragment_container);
+        loadingText = (TextView)findViewById(R.id.loadingText);
 
-        //List here
-        allImages = new ArrayList<Image>();
-        imageFragment = new ImageFragment();
-
-        for(int i=0;i<100;i++)
-        {
-
-            allImages.add(new Image(
-                "http://jasonlefkowitz.net/wp-content/uploads/2013/07/Cute-Cats-cats-33440930-1280-800.jpg",
-                    String.valueOf(i),
-                "http://i.huffpost.com/gen/964776/thumbs/s-CATS-KILL-BILLIONS-large.jpg"));
+        if(savedInstanceState!=null){
+            isShowingFullScreen = savedInstanceState.getBoolean(FULL_SCREEN);
         }
 
-        //ImageAdapter imageAdapter = new ImageAdapter(allImages);
-        gridView = (GridView) findViewById(R.id.cat_gv_cats);
-        imgAdapter = new ImageAdapter(allImages,imageFragment);
+        if(!isShowingFullScreen){
+            loadMoreCats();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(FULL_SCREEN,isShowingFullScreen);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        if(isShowingFullScreen){
+            fragment_container.setVisibility(View.GONE);
+            if(allImages!=null){
+                if(allImages.isEmpty()){
+                    loadMoreCats();
+                }else{
+                    gridView.setVisibility(View.VISIBLE);
+                }
+            }else {
+                loadMoreCats();
+            }
+        }
+    }
+
+    public void loadMoreCats(){
+
+        gridView.setVisibility(View.GONE);
+        loadingText.setText("loading more cats...");
+        fragment_container.setVisibility(View.VISIBLE);
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        FragmentGetImages fragmentGetImages = FragmentGetImages.newInstance(10);
+        ft.add(fragmentGetImages,"");
+        ft.commit();
+    }
+
+    public void onListCreated(List<Image> list){
+
+        allImages = list;
+        imgAdapter = new ImageAdapter(allImages);
         gridView.setAdapter(imgAdapter);
         gridView.setOnScrollListener(this);
 
-
-
-
+        fragment_container.setVisibility(View.GONE);
+        gridView.setVisibility(View.VISIBLE);
     }
 
-    public static void printList()
-    {
-        Image image = listofCats.get(0);
-        Log.v("DANISH", image.getUrl());
-        BitmapDownLoader download = new BitmapDownLoader(imageView);
-        download.execute(image.getUrl());
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+        this.scrollState = scrollState;
+        if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE){
+            imgAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onScroll(AbsListView absListView, int i, int i2, int i3) {
+    }
+
+    public void showFullScreenCat(Image catImage){
+
+        isShowingFullScreen=true;
+        loadingText.setText("loading full screen");
+        fragment_container.setVisibility(View.VISIBLE);
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment_container, new ImageFragment().newInstance(catImage.getUrl()));
+        ft.addToBackStack(null);
+        ft.commit();
+
     }
 
     @Override
@@ -174,4 +149,71 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
         return super.onOptionsItemSelected(item);
     }
 
+    public class ImageAdapter extends BaseAdapter {
+
+        List<Image> imageList;
+        ImageFragment adImageFragment;
+
+        public class ImageHolder{
+            ImageView catIV;
+        }
+
+        public ImageAdapter(List<Image> imageList){
+            this.imageList = imageList;
+            this.adImageFragment = imageFragment;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+
+            ImageHolder imageHolder;
+
+            if(convertView == null){
+
+                imageHolder = new ImageHolder();
+                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.thumbnail_img_layout, parent, false);
+                imageHolder.catIV = (ImageView) convertView.findViewById(R.id.thumbnail_image);
+                convertView.setTag(imageHolder);
+
+            }
+            else {
+                imageHolder = (ImageHolder) convertView.getTag();
+            }
+
+            if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE)
+            {
+                BitmapDownLoader download = new BitmapDownLoader(imageHolder.catIV);
+                download.execute(allImages.get(position).getUrl());
+
+                imageHolder.catIV.setTag(position);
+                imageHolder.catIV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        int position = Integer.valueOf((Integer) v.getTag());
+                        Image image = allImages.get(position);
+                        MainActivity.this.showFullScreenCat(image);
+
+                    }
+                });
+            }
+            return convertView;
+        }
+
+        @Override
+        public int getCount() {
+            return imageList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return imageList.get(position);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return 0;
+        }
+    }
 }
